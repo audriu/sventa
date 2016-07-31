@@ -3,13 +3,46 @@ package pynda.sventa;
 import android.content.Context;
 import android.net.ConnectivityManager;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URL;
 
-/**
- * Created by audrius on 31/07/16.
- */
+import pynda.sventa.parsing.City;
+
 class NetworkUtils {
+
+    private static String tag = "Sventa-NU";
+    private static String XmlUrl = "http://sventa.myminicity.com/xml";
+
+    static City getXml(){
+        City city = new City();
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new URL(XmlUrl).openStream()));
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                if(line.contains("unemployment")){
+                    city.setUnemployment(getIntValue(line));
+                }
+                //todo add other options
+            }
+            return city;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static Integer getIntValue(String arg){
+        String s = arg;
+        s = s.substring(s.indexOf(">") + 1);
+        s = s.substring(0, s.indexOf("</"));
+        return Integer.parseInt(s);
+    }
+
     static void setMobileDataEnabled(Context context, boolean enabled) {
         try {
             final ConnectivityManager conman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -27,4 +60,5 @@ class NetworkUtils {
             e.printStackTrace();
         }
     }
+
 }

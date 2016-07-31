@@ -1,20 +1,18 @@
 package pynda.sventa;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.TextView;
 
-/**
- * Created by audrius on 31/07/16.
- */
+import pynda.sventa.parsing.City;
+
 class SventaAsyncTask extends AsyncTask<Object, String, String> {
 
     private TextView tw;
     volatile boolean toRun = true;
     private Context context;
+    private static String tag = "Sventa---";
 
     SventaAsyncTask(TextView tw, Context context){
         super();
@@ -25,22 +23,29 @@ class SventaAsyncTask extends AsyncTask<Object, String, String> {
     @Override
     protected String doInBackground(Object[] objects) {
         try {
-            Log.d("sventa", "------------");
+            Log.d(tag, "doInBackground started");
 
             while (toRun) {
-                NetworkUtils.setMobileDataEnabled(context, false);
-                Log.d("sventa", "-----off");
-                Thread.sleep(10000L);
-                NetworkUtils.setMobileDataEnabled(context, true);
-                Log.d("sventa", "-----on");
-                Thread.sleep(10000L);
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://sventa.myminicity.com"));
+//                Thread.sleep(8000L);
+//                NetworkUtils.setMobileDataEnabled(context, false);
+//                Log.d(tag, "Network off");
+//                Thread.sleep(3000L);
+//                NetworkUtils.setMobileDataEnabled(context, true);
+//                Log.d(tag, "Network on");
+
+                Thread.sleep(3000L);
+                publishProgress(NetworkUtils.getXml().toString());
+
+                City city = NetworkUtils.getXml();
+                Log.d(tag, "city polution"+city.toString());
+
+/*
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://sventa.myminicity.com/env"));
+                browserIntent.setPackage("com.android.chrome");
                 browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(browserIntent);
-
-                Log.d("sventa", "iter--------");
-
-                this.publishProgress("PrograssSring");
+*/
+                Log.d(tag, "Iteration finished");
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -57,7 +62,8 @@ class SventaAsyncTask extends AsyncTask<Object, String, String> {
     @Override
     protected void onProgressUpdate(String[] values) {
         super.onProgressUpdate(values);
-        tw.setText("Hi");
+        Log.d(tag, "progress updating");
+        tw.setText(values[0]);
     }
 
 }
