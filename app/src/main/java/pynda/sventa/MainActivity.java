@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -29,16 +30,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        //System.exit(0);
+        at.cancel(true);
     }
 
-    private class SventaAsyncTask extends AsyncTask {
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        at = new SventaAsyncTask();
+        at.execute();
+    }
+
+    private class SventaAsyncTask extends AsyncTask<Void, String, String> {
+
+        TextView tw = (TextView)findViewById(R.id.text1);
+        volatile boolean toRun = true;
+
         @Override
-        protected Object doInBackground(Object[] objects) {
+        protected String doInBackground(Void[] objects) {
             try {
                 Log.d("sventa", "------------");
 
-                while (true) {
+                while (toRun) {
                     setMobileDataEnabled(context, false);
                     Log.d("sventa", "-----off");
                     Thread.sleep(10000L);
@@ -50,11 +62,24 @@ public class MainActivity extends AppCompatActivity {
 
                     Log.d("sventa", "iter--------");
 
+                    this.publishProgress("PrograssSring");
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            return true;
+            return null;
+        }
+
+        @Override
+        protected void onCancelled(String o) {
+            toRun = false;
+            super.onCancelled(o);
+        }
+
+        @Override
+        protected void onProgressUpdate(String[] values) {
+            super.onProgressUpdate(values);
+            tw.setText("Hi");
         }
 
         private void setMobileDataEnabled(Context context, boolean enabled) {
