@@ -12,9 +12,9 @@ import pynda.sventa.parsing.City;
 class SventaAsyncTask extends AsyncTask<Object, String, String> {
 
     private TextView tw;
-    private volatile boolean toRun = true;
     private Context context;
     private static String tag = "Sventa-AT";
+    private static final String SVENTA = "http://sventa.myminicity.com/";
 
     SventaAsyncTask(TextView tw, Context context){
         super();
@@ -24,7 +24,6 @@ class SventaAsyncTask extends AsyncTask<Object, String, String> {
 
     @Override
     protected String doInBackground(Object[] objects) {
-            Log.d(tag, "doInBackground started");
 
             while (true) {
                 NetworkUtils.setMobileDataEnabled(context, false);
@@ -37,25 +36,30 @@ class SventaAsyncTask extends AsyncTask<Object, String, String> {
                 City city = NetworkUtils.getCity();
                 Log.d(tag, "city "+city.toString());
 
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://sventa.myminicity.com/"));
+                String url;
+                if(city.getPollution() > 0)
+                    url = SVENTA + "env";
+                else if(city.getUnemployment() > 0)
+                    url = SVENTA + "com";
+                else if(city.getTransport() > 0)
+                    url = SVENTA + "tra";
+                else if(city.getCriminality() > 0)
+                    url = SVENTA + "sec";
+                else
+                    url = SVENTA;
+
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 browserIntent.setPackage("com.android.chrome");
                 browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(browserIntent);
 
-                try {Thread.sleep(10000L);} catch (InterruptedException e) {}
+                try {Thread.sleep(15000L);} catch (InterruptedException e) {}
             }
-    }
-
-    @Override
-    protected void onCancelled(String o) {
-        toRun = false;
-        super.onCancelled(o);
     }
 
     @Override
     protected void onProgressUpdate(String[] values) {
         super.onProgressUpdate(values);
-        Log.d(tag, "progress updating");
         tw.setText(values[0]);
     }
 
