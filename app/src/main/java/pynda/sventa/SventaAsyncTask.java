@@ -1,6 +1,8 @@
 package pynda.sventa;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.TextView;
@@ -10,9 +12,9 @@ import pynda.sventa.parsing.City;
 class SventaAsyncTask extends AsyncTask<Object, String, String> {
 
     private TextView tw;
-    volatile boolean toRun = true;
+    private volatile boolean toRun = true;
     private Context context;
-    private static String tag = "Sventa---";
+    private static String tag = "Sventa-AT";
 
     SventaAsyncTask(TextView tw, Context context){
         super();
@@ -22,35 +24,26 @@ class SventaAsyncTask extends AsyncTask<Object, String, String> {
 
     @Override
     protected String doInBackground(Object[] objects) {
-        try {
             Log.d(tag, "doInBackground started");
 
-            while (toRun) {
-//                Thread.sleep(8000L);
-//                NetworkUtils.setMobileDataEnabled(context, false);
-//                Log.d(tag, "Network off");
-//                Thread.sleep(3000L);
-//                NetworkUtils.setMobileDataEnabled(context, true);
-//                Log.d(tag, "Network on");
+            while (true) {
+                NetworkUtils.setMobileDataEnabled(context, false);
+                Log.d(tag, "Network off");
+                NetworkUtils.setMobileDataEnabled(context, true);
+                Log.d(tag, "Network on");
 
-                Thread.sleep(3000L);
-                publishProgress(NetworkUtils.getXml().toString());
+                publishProgress(NetworkUtils.getCity().toString());
 
-                City city = NetworkUtils.getXml();
-                Log.d(tag, "city polution"+city.toString());
+                City city = NetworkUtils.getCity();
+                Log.d(tag, "city "+city.toString());
 
-/*
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://sventa.myminicity.com/env"));
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://sventa.myminicity.com/"));
                 browserIntent.setPackage("com.android.chrome");
                 browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(browserIntent);
-*/
-                Log.d(tag, "Iteration finished");
+
+                try {Thread.sleep(10000L);} catch (InterruptedException e) {}
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     @Override
