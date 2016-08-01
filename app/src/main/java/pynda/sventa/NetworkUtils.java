@@ -14,7 +14,7 @@ import pynda.sventa.parsing.City;
 
 class NetworkUtils {
 
-    private static String tag = "Sventa-NU";
+    private static String TAG = "Sventa-NU";
     private static String XmlUrl = "http://sventa.myminicity.com/xml";
 
     static City getCity             () {
@@ -63,9 +63,11 @@ class NetworkUtils {
             setMobileDataEnabledMethod.setAccessible(true);
 
             setMobileDataEnabledMethod.invoke(iConnectivityManager, enabled);
-            while (conman.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnectedOrConnecting() != enabled) {
-                Thread.sleep(100);
-            }
+//            todo wait until real internet connection is on, not just enabled, but for now will just sleep 3sec.
+//            while (conman.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnectedOrConnecting() != enabled) {
+//                Thread.sleep(100);
+//            }
+            Thread.sleep(3000);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,13 +1,13 @@
 package pynda.sventa.parsing;
 
 public class City {
-    private int unemployment;
+    private int unemployment = -1;
 
-    private int transport;
+    private int transport = -1;
 
-    private int criminality;
+    private int criminality = -1;
 
-    private int pollution;
+    private int pollution = -1;
 
     public int getUnemployment() {
         return unemployment;

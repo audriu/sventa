@@ -13,10 +13,10 @@ class SventaAsyncTask extends AsyncTask<Object, String, String> {
 
     private TextView tw;
     private Context context;
-    private static String tag = "Sventa-AT";
+    private static String TAG = "Sventa-AT";
     private static final String SVENTA = "http://sventa.myminicity.com/";
 
-    SventaAsyncTask(TextView tw, Context context){
+    SventaAsyncTask(TextView tw, Context context) {
         super();
         this.tw = tw;
         this.context = context;
@@ -27,33 +27,20 @@ class SventaAsyncTask extends AsyncTask<Object, String, String> {
 
             while (true) {
                 NetworkUtils.setMobileDataEnabled(context, false);
-                Log.d(tag, "Network off");
                 NetworkUtils.setMobileDataEnabled(context, true);
-                Log.d(tag, "Network on");
-
-                publishProgress(NetworkUtils.getCity().toString());
 
                 City city = NetworkUtils.getCity();
-                Log.d(tag, "city "+city.toString());
+                publishProgress(city.toString());
 
-                String url;
-                if(city.getPollution() > 0)
-                    url = SVENTA + "env";
-                else if(city.getUnemployment() > 0)
-                    url = SVENTA + "com";
-                else if(city.getTransport() > 0)
-                    url = SVENTA + "tra";
-                else if(city.getCriminality() > 0)
-                    url = SVENTA + "sec";
-                else
-                    url = SVENTA;
+                String url = getUrlPatternFromCity(city);
 
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(SVENTA + url));
                 browserIntent.setPackage("com.android.chrome");
                 browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(browserIntent);
 
-                try {Thread.sleep(15000L);} catch (InterruptedException e) {}
+                Log.d(TAG, "city " + city.toString() + "  param:  " + url);
+                try {Thread.sleep(7000L);} catch (InterruptedException e) {}
             }
     }
 
@@ -61,6 +48,20 @@ class SventaAsyncTask extends AsyncTask<Object, String, String> {
     protected void onProgressUpdate(String[] values) {
         super.onProgressUpdate(values);
         tw.setText(values[0]);
+    }
+
+    private String getUrlPatternFromCity(City city) {
+        //todo return the biggest.
+        String result = "";
+        if (city.getPollution() > 0 )
+            result = "env";
+        else if (city.getUnemployment() > 0)
+            result = "ind";
+        else if (city.getTransport() > 0)
+            result = "tra";
+        else if (city.getCriminality() > 0)
+            result = "sec";
+        return result;
     }
 
 }
