@@ -13,22 +13,24 @@ class SventaAsyncTask extends AsyncTask<Object, String, String> {
 
     private TextView tw;
     private Context context;
+    private NetworkUtils networkUtils;
     private static final String SVENTA = "http://sventa.myminicity.com/";
 
     SventaAsyncTask(TextView tw, Context context) {
         super();
         this.tw = tw;
         this.context = context;
+        networkUtils = new NetworkUtils(context);
     }
 
     @Override
     protected String doInBackground(Object[] objects) {
 
             while (true) {
-                NetworkUtils.setMobileDataEnabled(context, false);
-                NetworkUtils.setMobileDataEnabled(context, true);
+                networkUtils.setMobileDataEnabled(context, true);
+                 try {Thread.sleep(1000L);} catch (InterruptedException e) {}
 
-                City city = NetworkUtils.getCity();
+                City city = networkUtils.getCity();
                 String url = getUrlPatternFromCity(city);
                 publishProgress(city.toString() + "\n" + url);
 
@@ -37,7 +39,8 @@ class SventaAsyncTask extends AsyncTask<Object, String, String> {
                 browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(browserIntent);
 
-                try {Thread.sleep(2000L);} catch (InterruptedException e) {}
+                try {Thread.sleep(3000L);} catch (InterruptedException e) {}
+                networkUtils.setMobileDataEnabled(context, false);
             }
     }
 

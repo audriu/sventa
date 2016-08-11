@@ -14,9 +14,15 @@ import pynda.sventa.parsing.City;
 
 class NetworkUtils {
 
-    private static String XmlUrl = "http://sventa.myminicity.com/xml";
+    public NetworkUtils(Context context){
+        super();
+        this.context = context;
+    }
 
-    static City getCity             () {
+    private static String XmlUrl = "http://sventa.myminicity.com/xml";
+    private Context context;
+
+    City getCity() {
         City city = new City();
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new URL(XmlUrl).openStream()));
@@ -42,14 +48,14 @@ class NetworkUtils {
         return city;
     }
 
-    private static Integer getIntValue(String arg) {
+    private Integer getIntValue(String arg) {
         String s = arg;
         s = s.substring(s.indexOf(">") + 1);
         s = s.substring(0, s.indexOf("</"));
         return Integer.parseInt(s);
     }
 
-    static void setMobileDataEnabled(Context context, boolean enabled) {
+    void setMobileDataEnabled(Context context, boolean enabled) {
         try {
             final ConnectivityManager conman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             final Class conmanClass = Class.forName(conman.getClass().getName());
@@ -62,8 +68,12 @@ class NetworkUtils {
             setMobileDataEnabledMethod.setAccessible(true);
 
             setMobileDataEnabledMethod.invoke(iConnectivityManager, enabled);
+            int numberOfTries = 0;
             while (conman.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnected() != enabled) {
                 Thread.sleep(100);
+                if (numberOfTries++ > 150) {
+                    return;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
